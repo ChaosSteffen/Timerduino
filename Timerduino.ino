@@ -7,8 +7,13 @@ SimpleTimer timer;
 
 int oneMin = LOW;
 int twoMin = LOW;
-int threeMin = LOW;
 int fourMin = LOW;
+int eightMin = LOW;
+
+boolean oneMinActivated = false;
+boolean twoMinActivated = false;
+boolean fourMinActivated = false;
+boolean eightMinActivated = false;
 
 int timerId = 0;
 
@@ -27,54 +32,60 @@ void setup() {
 }
 
 void loop() {
-  // put your main code here, to run repeatedly: 
-  
-  oneMin = digitalRead(2);
-  twoMin = digitalRead(3);
-  threeMin = digitalRead(4);
-  fourMin = digitalRead(5);
+  readInputs();
 
   if (oneMin == HIGH) {
-    disableAllLeds();
-    digitalWrite(8, oneMin);
-    
-    timer.deleteTimer(timerId);
-    timerId = timer.setTimeout(10000, alarm);
-  }
-  
-  if (twoMin == HIGH) {
-    disableAllLeds();
-    digitalWrite(9, twoMin);
-    
-    timer.deleteTimer(timerId);
-    timerId = timer.setTimeout(120000, alarm);
+    oneMinActivated = true;
   }
 
-  if (threeMin == HIGH) {
-    disableAllLeds();
-    digitalWrite(10, threeMin);
-    
-    timer.deleteTimer(timerId);
-    timerId = timer.setTimeout(180000, alarm);
+  if (twoMin == HIGH) {
+    twoMinActivated = true;
   }
 
   if (fourMin == HIGH) {
-    disableAllLeds();
-    digitalWrite(11, fourMin);
-    
-    timer.deleteTimer(timerId);
-    timerId = timer.setTimeout(240000, alarm);
+    fourMinActivated = true;
   }
-  
+
+  if (eightMin == HIGH) {
+    eightMinActivated = true;
+  }
+
+  if (oneMin == HIGH | twoMin == HIGH | fourMin == HIGH | eightMin == HIGH) {
+    setLedForStatus();
+    timer.deleteTimer(timerId);
+    timerId = timer.setTimeout(calculateTime(), alarm);
+  }
+
   timer.run();
 }
 
-void enableAllLeds() {
-   digitalWrite(8, HIGH);
-   digitalWrite(9, HIGH);
-   digitalWrite(10, HIGH);
-   digitalWrite(11, HIGH);
+double calculateTime() {
+  double time = 0.0;
 
+  if (oneMinActivated) {
+    time = time + 60000.0;
+  }
+
+  if (twoMinActivated) {
+    time = time + 120000.0;
+  }
+
+  if (fourMinActivated) {
+    time = time + 240000.0;
+  }
+
+  if (eightMinActivated) {
+    time = time + 480000.0;
+  }
+
+  return time;
+}
+
+void enableAllLeds() {
+  digitalWrite(8, HIGH);
+  digitalWrite(9, HIGH);
+  digitalWrite(10, HIGH);
+  digitalWrite(11, HIGH);
 }
 
 void disableAllLeds() {
@@ -84,13 +95,38 @@ void disableAllLeds() {
   digitalWrite(11, LOW);
 }
 
+void setLedForStatus() {
+  if (oneMinActivated) {
+    digitalWrite(8, HIGH);
+  }
 
-void alarm() {
+  if (twoMinActivated) {
+    digitalWrite(9, HIGH);
+  }
+
+  if (fourMinActivated) {
+    digitalWrite(10, HIGH);
+  }
+
+  if (eightMinActivated) {
+    digitalWrite(11, HIGH);
+  }
+}
+
+void readInputs() {
   oneMin = digitalRead(2);
   twoMin = digitalRead(3);
-  threeMin = digitalRead(4);
-  fourMin = digitalRead(5);
+  fourMin = digitalRead(4);
+  eightMin = digitalRead(5);
+}
 
+void alarm() {
+  oneMinActivated = false;
+  twoMinActivated = false;
+  fourMinActivated = false;
+  eightMinActivated = false;
+
+  readInputs();
   enableAllLeds();
 
   tone(7, 3600);
@@ -98,18 +134,20 @@ void alarm() {
 
   noTone(7);
   delay(70);
-  
+
   tone(7, 3600);
   delay(70);
 
   noTone(7);
-  delay(700);
-  
+  delay(200);
+
   disableAllLeds();
-  
-  if (oneMin == HIGH || twoMin == HIGH || threeMin == HIGH || fourMin == HIGH) {
+  delay(500);
+
+  if (oneMin == HIGH || twoMin == HIGH || fourMin == HIGH || eightMin == HIGH) {
     delay(1000);
-  } else {
+  } 
+  else {
     alarm();
   }
 }
