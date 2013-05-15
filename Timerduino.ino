@@ -25,7 +25,12 @@ void setup() {
   pinMode(4, INPUT);
   pinMode(5, INPUT);
 
+  pinMode(7, OUTPUT);
   pinMode(8, OUTPUT);
+  pinMode(12, OUTPUT);
+  pinMode(13, OUTPUT);
+
+
   pinMode(9, OUTPUT);
   pinMode(10, OUTPUT);
   pinMode(11, OUTPUT);
@@ -33,7 +38,13 @@ void setup() {
 
 void loop() {
   readInputs();
+  detectButtonPress();
+  setLedForStatus();
 
+  timer.run();
+}
+
+void detectButtonPress() {
   if (oneMin == HIGH) {
     oneMinActivated = true;
   }
@@ -51,7 +62,6 @@ void loop() {
   }
 
   if (oneMin == HIGH | twoMin == HIGH | fourMin == HIGH | eightMin == HIGH) {
-    setLedForStatus();
     timer.deleteTimer(timerId);
     timerId = timer.setTimeout(calculateTime(), alarm);
   }
@@ -82,34 +92,74 @@ double calculateTime() {
 }
 
 void enableAllLeds() {
+  digitalWrite(7, HIGH);
   digitalWrite(8, HIGH);
-  digitalWrite(9, HIGH);
-  digitalWrite(10, HIGH);
-  digitalWrite(11, HIGH);
+  digitalWrite(12, HIGH);
+  digitalWrite(13, HIGH);
 }
 
 void disableAllLeds() {
+  digitalWrite(7, LOW);
   digitalWrite(8, LOW);
-  digitalWrite(9, LOW);
-  digitalWrite(10, LOW);
-  digitalWrite(11, LOW);
+  digitalWrite(12, LOW);
+  digitalWrite(13, LOW);
 }
 
 void setLedForStatus() {
   if (oneMinActivated) {
-    digitalWrite(8, HIGH);
+    analogWrite(9, 0); // RED
+    analogWrite(10, 255); // GREEN
+    analogWrite(11, 0); // BLUE
+    digitalWrite(7, HIGH);
+    delay(1);
+    digitalWrite(7, LOW);
+    analogWrite(9, 255); // RED
+    analogWrite(10, 255); // GREEN
+    analogWrite(11, 255); // BLUE
+  } else {
+    delay(1);
   }
 
   if (twoMinActivated) {
-    digitalWrite(9, HIGH);
+    analogWrite(9, 0); // RED
+    analogWrite(10, 255); // GREEN
+    analogWrite(11, 0); // BLUE
+    digitalWrite(8, HIGH);
+    delay(1);
+    digitalWrite(8, LOW);
+    analogWrite(9, 255); // RED
+    analogWrite(10, 255); // GREEN
+    analogWrite(11, 255); // BLUE
+  } else {
+    delay(1);
   }
 
   if (fourMinActivated) {
-    digitalWrite(10, HIGH);
+    analogWrite(9, 0); // RED
+    analogWrite(10, 255); // GREEN
+    analogWrite(11, 0); // BLUE
+    digitalWrite(12, HIGH);
+    delay(1);
+    digitalWrite(12, LOW);
+    analogWrite(9, 255); // RED
+    analogWrite(10, 255); // GREEN
+    analogWrite(11, 255); // BLUE
+  } else {
+    delay(1);
   }
 
   if (eightMinActivated) {
-    digitalWrite(11, HIGH);
+    analogWrite(9, 0); // RED
+    analogWrite(10, 255); // GREEN
+    analogWrite(11, 0); // BLUE
+    digitalWrite(13, HIGH);
+    delay(1);
+    digitalWrite(13, LOW);
+    analogWrite(9, 255); // RED
+    analogWrite(10, 255); // GREEN
+    analogWrite(11, 255); // BLUE
+  } else {
+    delay(1);
   }
 }
 
@@ -129,16 +179,16 @@ void alarm() {
   readInputs();
   enableAllLeds();
 
-  tone(7, 3600);
+  tone(6, 3600);
   delay(70);
 
-  noTone(7);
+  noTone(6);
   delay(70);
 
-  tone(7, 3600);
+  tone(6, 3600);
   delay(70);
 
-  noTone(7);
+  noTone(6);
   delay(200);
 
   disableAllLeds();
@@ -151,3 +201,5 @@ void alarm() {
     alarm();
   }
 }
+
+
